@@ -209,7 +209,8 @@ namespace ImFlow
             h = std::hash<U>{}(uid);
         auto it = std::find_if(m_ins.begin(), m_ins.end(), [&h](std::shared_ptr<Pin>& p)
                             { return p->getUID() == h; });
-        assert(it != m_ins.end() && "Pin UID not found!");
+        if (it == m_ins.end())
+            return nullptr;
         return it->get();
     }
 
@@ -228,7 +229,8 @@ namespace ImFlow
             h = std::hash<U>{}(uid);
         auto it = std::find_if(m_outs.begin(), m_outs.end(), [&h](std::shared_ptr<Pin>& p)
                             { return p->getUID() == h; });
-        assert(it != m_outs.end() && "Pin UID not found!");
+        if (it == m_outs.end())
+            return nullptr;
         return it->get();
     }
 
@@ -300,12 +302,9 @@ namespace ImFlow
     // IN PIN
 
     template<class T>
-    const T& InPin<T>::val()
+    T& InPin<T>::val()
     {
-        if(!m_link)
-            return m_emptyVal;
-
-        return reinterpret_cast<OutPin<T>*>(m_link->left())->val();
+        return m_emptyVal;
     }
 
     template <class T>
@@ -341,10 +340,10 @@ namespace ImFlow
     // OUT PIN
 
     template<class T>
-    const T &OutPin<T>::val()
+    T& OutPin<T>::val()
     {
         std::string s = std::to_string(m_uid) + std::to_string(m_parent->getUID());
-        if (std::find((*m_inf)->get_recursion_blacklist().begin(), (*m_inf)->get_recursion_blacklist().end(), s) == (*m_inf)->get_recursion_blacklist().end())
+        if (std::ranges::find((*m_inf)->get_recursion_blacklist(), s) == (*m_inf)->get_recursion_blacklist().end())
         {
             (*m_inf)->get_recursion_blacklist().emplace_back(s);
             m_val = m_behaviour();

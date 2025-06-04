@@ -1046,15 +1046,22 @@ namespace ImFlow
          */
         void setPos(ImVec2 pos) { m_pos = pos; }
 
-        void setFilterID(int id) { m_filterID = id; }
+        void setName(std::string name) { m_name = std::move(name); }
 
-        int getFilterID() const { return m_filterID; }
+        void setFilterID(uint64_t id) { m_filterID = id; }
+
+        uint64_t getFilterID() const { return m_filterID; }
+
+        void setTypeID(uint64_t id) { m_TypeID = id; }
+
+        uint64_t getTypeID() const { return m_TypeID; }
 
         virtual void dropLinks() = 0;
 
     protected:
         PinUID m_uid;
-        int m_filterID;
+        uint64_t m_filterID;
+        uint64_t m_TypeID;
         std::string m_name;
         ImVec2 m_pos = ImVec2(0.f, 0.f);
         ImVec2 m_size = ImVec2(0.f, 0.f);
@@ -1147,7 +1154,9 @@ namespace ImFlow
          * @brief <BR>Get value carried by the connected link
          * @return Reference to the value of the connected OutPin. Or the default value if not connected
          */
-        const T& val();
+        T& val();
+
+        void setData(const T& data) { m_emptyVal = data; }
 
         void dropLinks() override;
 
@@ -1220,7 +1229,7 @@ namespace ImFlow
          * @brief <BR>Get output value
          * @return Const reference to the internal value of the pin
          */
-        const T& val();
+        T& val();
 
         /**
          * @brief <BR>Set logic to calculate output value
